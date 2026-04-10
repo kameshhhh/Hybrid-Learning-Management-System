@@ -1,1 +1,0 @@
-import prisma from './src/config/database'; prisma.studentSkill.findMany({ include: { skill: { select: { _count: { select: { chapters: true, tasks: true } } } } } }).then(console.log).catch(console.error);

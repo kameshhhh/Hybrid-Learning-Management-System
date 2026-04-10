@@ -42,6 +42,18 @@ server/err*.txt
 server/errors*.txt
 server/ts*_errors*.txt
 server/tsc_errors*.txt
+QUICK_REFERENCE.txt
+SKILL_MANAGEMENT_QUICK_START.txt
+test_get_asset_url.js
+server/check_*
+server/fix*
+server/inspect_*
+server/test*.ts
+server/errorTest.ts
+server/final_route_audit.ts
+server/find_one_video.mjs
+server/convertPrisma.js
+server/raw_schema.txt
 
 # Local backups
 server/backups/*.sql
