@@ -1,0 +1,127 @@
+[
+  {
+    "id": "5d0ae43e-c58d-49b1-b8d0-f3c7c297d7bc",
+    "skillId": "ffc785b5-10f5-48f1-84ba-cde0e5d98af3",
+    "dayNumber": 1,
+    "rubric": [
+      {
+        "weight": 4,
+        "maxScore": 4,
+        "criterion": "Code Correctness"
+      },
+      {
+        "weight": 2,
+        "maxScore": 2,
+        "criterion": "Code Formatting"
+      },
+      {
+        "weight": 2,
+        "maxScore": 2,
+        "criterion": "Comments"
+      },
+      {
+        "weight": 2,
+        "maxScore": 2,
+        "criterion": "Output Matching"
+      }
+    ],
+    "dueDate": null,
+    "title": "Hello World Program",
+    "description": "Write your first Python program to print \"Hello, World!\"",
+    "maxMarks": 10,
+    "passingMarks": 5,
+    "submissionType": "file",
+    "allowedFileTypes": [
+      "py"
+    ],
+    "maxFileSize": 10485760,
+    "deadlineDays": 1,
+    "status": "approved",
+    "createdBy": "1ec0f1f7-fec2-4010-84a5-b325724ead61",
+    "createdAt": "2026-04-07T06:52:01.648Z",
+    "updatedAt": "2026-04-07T06:52:01.648Z",
+    "chapterId": null,
+    "lessonId": null
+  },
+  {
+    "id": "889bb815-ad9d-4e7a-b7b5-2dc3e7a9d6fa",
+    "skillId": "ffc785b5-10f5-48f1-84ba-cde0e5d98af3",
+    "dayNumber": 2,
+    "rubric": [
+      {
+        "weight": 2,
+        "maxScore": 2,
+        "criterion": "Variable Declaration"
+      },
+      {
+        "weight": 3,
+        "maxScore": 3,
+        "criterion": "Arithmetic Operations"
+      },
+      {
+        "weight": 2,
+        "maxScore": 2,
+        "criterion": "Output Format"
+      },
+      {
+        "weight": 2,
+        "maxScore": 2,
+        "criterion": "Code Readability"
+      },
+      {
+        "weight": 1,
+        "maxScore": 1,
+        "criterion": "Error Handling"
+      }
+    ],
+    "dueDate": null,
+    "title": "Variables and Calculations",
+    "description": "Create variables and perform basic arithmetic operations",
+    "maxMarks": 10,
+    "passingMarks": 5,
+    "submissionType": "both",
+    "allowedFileTypes": [
+      "py",
+      "txt"
+    ],
+    "maxFileSize": 10485760,
+    "deadlineDays": 1,
+    "status": "approved",
+    "createdBy": "1ec0f1f7-fec2-4010-84a5-b325724ead61",
+    "createdAt": "2026-04-07T06:52:01.656Z",
+    "updatedAt": "2026-04-07T06:52:01.656Z",
+    "chapterId": null,
+    "lessonId": null
+  },
+  {
+    "id": "a3c8bf78-157d-45ca-a377-02da1f9e823d",
+    "skillId": "ffc785b5-10f5-48f1-84ba-cde0e5d98af3",
+    "dayNumber": 3,
+    "rubric": [
+      {
+        "maxMarks": 10,
+        "criterion": "Perfection"
+      }
+    ],
+    "dueDate": null,
+    "title": "  To study welding tools, workshop safety rules and identify appropriate Personal Protective  Equipment (PPE) required for different welding operations. ",
+    "description": "",
+    "maxMarks": 10,
+    "passingMarks": 5,
+    "submissionType": "both",
+    "allowedFileTypes": [
+      "pdf",
+      "doc",
+      "docx",
+      "zip"
+    ],
+    "maxFileSize": 10485760,
+    "deadlineDays": 1,
+    "status": "draft",
+    "createdBy": "3c9b6de8-4e47-4bb5-82d9-3a204baea1fa",
+    "createdAt": "2026-04-07T09:31:26.701Z",
+    "updatedAt": "2026-04-07T09:31:26.701Z",
+    "chapterId": "4133cf90-f252-4c98-abc8-11409c5b20e1",
+    "lessonId": null
+  }
+]

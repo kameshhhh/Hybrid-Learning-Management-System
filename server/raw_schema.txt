@@ -1,0 +1,684 @@
+// ============================================
+// SKILL SIDE DATABASE SCHEMA - PRISMA
+// Version: 1.0
+// Generator & Datasource
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUM TYPES
+// ============================================
+
+enum UserRole {
+  admin
+  faculty
+  student
+}
+
+enum SkillStatus {
+  draft
+  pending_approval
+  approved
+  rejected
+  active
+  archived
+}
+
+enum ChapterStatus {
+  draft
+  pending_approval
+  approved
+}
+
+enum LessonStatus {
+  draft
+  pending_approval
+  approved
+}
+
+enum TaskStatus {
+  draft
+  pending_approval
+  approved
+}
+
+enum StudentSkillStatus {
+  active
+  dropped
+  completed
+}
+
+enum SubmissionType {
+  file
+  text
+  both
+}
+
+enum GroupType {
+  team
+  college
+  batch
+  class
+}
+
+enum NotificationType {
+  info
+  success
+  warning
+  error
+}
+
+// ============================================
+// 1. USERS TABLE
+// ============================================
+
+model User {
+  id                    String    @id @default(uuid())
+  username              String    @unique
+  email                 String    @unique
+  password_hash         String    @map("password_hash")
+  full_name             String    @map("full_name")
+  phone                 String?
+  role                  UserRole
+  
+  // Account Status
+  is_active             Boolean   @default(true)
+  is_blocked            Boolean   @default(false)
+  block_reason          String?
+  blocked_at            DateTime?
+  blocked_by            String?   // References User.id
+  
+  // Device Management
+  is_logged_in          Boolean   @default(false)
+  current_session_id    String?
+  last_login_at         DateTime?
+  last_login_ip         String?
+  last_login_device     String?
+  
+  // Password Management
+  password_changed_at   DateTime  @default(now())
+  password_reset_token  String?
+  password_reset_expires DateTime?
+  failed_login_attempts Int       @default(0)
+  locked_until          DateTime?
+  
+  // Timestamps
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  created_by            String?
+  
+  // Relations
+  created_skills        Skill[]           @relation("SkillCreator")
+  created_chapters      SkillChapter[]    @relation("ChapterCreator")
+  created_lessons       SkillLesson[]     @relation("LessonCreator")
+  created_tasks         SkillTask[]       @relation("TaskCreator")
+  faculty_assignments   SkillFaculty[]    @relation("FacultyAssignment")
+  student_enrollments   StudentSkill[]    @relation("StudentEnrollment")
+  assessments           DailyAssessment[] @relation("Assessor")
+  reviewed_logs         SkillProgressLog[] @relation("LogReviewer")
+  sessions              Session[]
+  audit_logs            AuditLog[]
+  notifications         Notification[]
+  generated_certificates SkillCertificate[] @relation("CertificateGenerator")
+  created_groups        Group[]           @relation("GroupCreator")
+  group_assignments     SkillGroupAssignment[] @relation("GroupAssignmentCreator")
+  
+  @@map("users")
+  @@index([email])
+  @@index([role])
+  @@index([is_active])
+  @@index([is_logged_in])
+  @@index([username])
+}
+
+// ============================================
+// 2. SKILLS TABLE
+// ============================================
+
+model Skill {
+  id                String        @id @default(uuid())
+  skill_code        String        @unique @map("skill_code")
+  name              String
+  description       String?
+  duration_weeks    Int           @map("duration_weeks")
+  total_tasks       Int           @default(0) @map("total_tasks")
+  total_chapters    Int           @default(0) @map("total_chapters")
+  total_lessons     Int           @default(0) @map("total_lessons")
+  
+  // Status Management
+  status            SkillStatus   @default(draft)
+  rejection_reason  String?
+  approved_at       DateTime?
+  approved_by       String?
+  
+  // Metadata
+  thumbnail_url     String?
+  cover_image_url   String?
+  
+  // Audit
+  created_by        String?
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+  
+  // Relations
+  creator           User?         @relation("SkillCreator", fields: [created_by], references: [id])
+  approver          User?         @relation("SkillApprover", fields: [approved_by], references: [id])
+  chapters          SkillChapter[]
+  tasks             SkillTask[]
+  faculty_assignments SkillFaculty[]
+  student_assignments StudentSkill[]
+  group_assignments SkillGroupAssignment[]
+  progress_logs     SkillProgressLog[]
+  certificates      SkillCertificate[]
+  
+  @@map("skills")
+  @@index([status])
+  @@index([skill_code])
+  @@index([created_by])
+}
+
+// ============================================
+// 3. SKILL FACULTY ASSIGNMENT
+// ============================================
+
+model SkillFaculty {
+  id              String    @id @default(uuid())
+  skill_id        String    @map("skill_id")
+  faculty_id      String    @map("faculty_id")
+  assigned_by     String?
+  assigned_at     DateTime  @default(now())
+  is_primary      Boolean   @default(false)
+  is_active       Boolean   @default(true)
+  removed_at      DateTime?
+  removed_by      String?
+  removal_reason  String?
+  
+  // Relations
+  skill           Skill     @relation(fields: [skill_id], references: [id])
+  faculty         User      @relation("FacultyAssignment", fields: [faculty_id], references: [id])
+  assigner        User?     @relation("FacultyAssigner", fields: [assigned_by], references: [id])
+  remover         User?     @relation("FacultyRemover", fields: [removed_by], references: [id])
+  
+  @@unique([skill_id, faculty_id])
+  @@map("skill_faculty")
+  @@index([skill_id])
+  @@index([faculty_id])
+}
+
+// ============================================
+// 4. SKILL CHAPTERS TABLE
+// ============================================
+
+model SkillChapter {
+  id              String        @id @default(uuid())
+  skill_id        String        @map("skill_id")
+  title           String
+  description     String?
+  chapter_number  Int           @map("chapter_number")
+  status          ChapterStatus @default(draft)
+  created_by      String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  
+  // Relations
+  skill           Skill         @relation(fields: [skill_id], references: [id])
+  creator         User?         @relation("ChapterCreator", fields: [created_by], references: [id])
+  lessons         SkillLesson[]
+  
+  @@unique([skill_id, chapter_number])
+  @@map("skill_chapters")
+  @@index([skill_id])
+}
+
+// ============================================
+// 5. SKILL LESSONS TABLE (with Video)
+// ============================================
+
+model SkillLesson {
+  id                      String        @id @default(uuid())
+  chapter_id              String        @map("chapter_id")
+  title                   String
+  description             String?
+  lesson_number           Int           @map("lesson_number")
+  
+  // Video Content
+  video_url               String?
+  video_duration          Int?          // In seconds
+  video_size              BigInt?
+  video_format            String?
+  video_resolution        String?
+  video_thumbnail         String?
+  
+  // Additional Materials
+  pdf_url                 String?
+  pdf_size                BigInt?
+  attachment_urls         Json?         // Array of additional resources
+  
+  // Validation Flags
+  is_video_validated      Boolean       @default(false)
+  video_validation_message String?
+  video_validated_at      DateTime?
+  video_validated_by      String?
+  
+  // Status
+  status                  LessonStatus  @default(draft)
+  
+  // Timestamps
+  created_by              String?
+  created_at              DateTime      @default(now())
+  updated_at              DateTime      @updatedAt
+  
+  // Relations
+  chapter                 SkillChapter  @relation(fields: [chapter_id], references: [id])
+  creator                 User?         @relation("LessonCreator", fields: [created_by], references: [id])
+  validator               User?         @relation("LessonValidator", fields: [video_validated_by], references: [id])
+  progress_records        SkillLessonProgress[]
+  
+  @@unique([chapter_id, lesson_number])
+  @@map("skill_lessons")
+  @@index([chapter_id])
+  @@index([status])
+}
+
+// ============================================
+// 6. SKILL TASKS TABLE
+// ============================================
+
+model SkillTask {
+  id                  String         @id @default(uuid())
+  skill_id            String         @map("skill_id")
+  task_number         Int            @map("task_number")
+  title               String
+  description         String?
+  
+  // Assessment
+  max_marks           Int            @default(10)
+  passing_marks       Int            @default(5)
+  
+  // Rubric (JSON)
+  rubric              Json           @default("[]")
+  
+  // Submission
+  submission_type     SubmissionType @default(file)
+  allowed_file_types  Json           @default("[\"pdf\", \"doc\", \"docx\", \"zip\"]")
+  max_file_size       Int            @default(10485760) // 10MB
+  
+  // Deadline
+  deadline_days       Int            @default(1)
+  
+  // Status
+  status              TaskStatus     @default(draft)
+  
+  // Timestamps
+  created_by          String?
+  created_at          DateTime       @default(now())
+  updated_at          DateTime       @updatedAt
+  
+  // Relations
+  skill               Skill          @relation(fields: [skill_id], references: [id])
+  creator             User?          @relation("TaskCreator", fields: [created_by], references: [id])
+  assessments         DailyAssessment[]
+  
+  @@map("skill_tasks")
+  @@index([skill_id])
+  @@index([task_number])
+}
+
+// ============================================
+// 7. STUDENT SKILL ASSIGNMENT
+// ============================================
+
+model StudentSkill {
+  id                    String            @id @default(uuid())
+  student_id            String            @map("student_id")
+  skill_id              String            @map("skill_id")
+  assigned_by           String?
+  assigned_at           DateTime          @default(now())
+  group_id              String?
+  
+  // Status Tracking
+  status                StudentSkillStatus @default(active)
+  dropped_at            DateTime?
+  drop_reason           String?
+  
+  // Progress (Denormalized)
+  total_tasks_completed Int               @default(0)
+  total_marks_obtained  Int               @default(0)
+  progress_percentage   Decimal           @default(0) @db.Decimal(5,2)
+  
+  // Completion
+  completed_at          DateTime?
+  certificate_url       String?
+  
+  // Relations
+  student               User              @relation("StudentEnrollment", fields: [student_id], references: [id])
+  skill                 Skill             @relation(fields: [skill_id], references: [id])
+  assigner              User?             @relation("StudentEnrollmentAssigner", fields: [assigned_by], references: [id])
+  group                 Group?            @relation(fields: [group_id], references: [id])
+  progress_logs         SkillProgressLog[]
+  assessments           DailyAssessment[]
+  lesson_progress       SkillLessonProgress[]
+  certificate           SkillCertificate?
+  
+  @@unique([student_id, skill_id])
+  @@map("student_skills")
+  @@index([student_id])
+  @@index([skill_id])
+  @@index([status])
+}
+
+// ============================================
+// 8. DAILY ASSESSMENTS (Submissions)
+// ============================================
+
+model DailyAssessment {
+  id                    String    @id @default(uuid())
+  student_id            String    @map("student_id")
+  task_id               String    @map("task_id")
+  skill_id              String    @map("skill_id")
+  
+  // Submission
+  submission_text       String?
+  submission_file_url   String?
+  submitted_at          DateTime  @default(now())
+  
+  // Assessment
+  marks_obtained        Decimal?  @db.Decimal(5,2)
+  rubric_scores         Json?     // Individual criterion scores
+  faculty_feedback      String?
+  
+  // Faculty who assessed
+  assessed_by           String?
+  assessed_at           DateTime?
+  
+  // Status
+  is_late               Boolean   @default(false)
+  is_resubmitted        Boolean   @default(false)
+  previous_submission_id String?
+  
+  // Audit
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  
+  // Relations
+  student               User      @relation(fields: [student_id], references: [id])
+  task                  SkillTask @relation(fields: [task_id], references: [id])
+  skill                 Skill     @relation(fields: [skill_id], references: [id])
+  assessor              User?     @relation("Assessor", fields: [assessed_by], references: [id])
+  
+  @@unique([student_id, task_id])
+  @@map("daily_assessments")
+  @@index([student_id])
+  @@index([task_id])
+  @@index([assessed_by])
+}
+
+// ============================================
+// 9. STUDENT PROGRESS LOGS (Weekly)
+// ============================================
+
+model SkillProgressLog {
+  id              String    @id @default(uuid())
+  student_id      String    @map("student_id")
+  skill_id        String    @map("skill_id")
+  
+  // Log Content
+  week_number     Int       @map("week_number")
+  log_date        DateTime  @map("log_date")
+  work_done       String?
+  challenges_faced String?
+  next_plan       String?
+  
+  // Faculty Review
+  faculty_remarks String?
+  reviewed_by     String?
+  reviewed_at     DateTime?
+  
+  // Status
+  is_approved     Boolean   @default(false)
+  
+  created_at      DateTime  @default(now())
+  
+  // Relations
+  student         User      @relation(fields: [student_id], references: [id])
+  skill           Skill     @relation(fields: [skill_id], references: [id])
+  reviewer        User?     @relation("LogReviewer", fields: [reviewed_by], references: [id])
+  
+  @@unique([student_id, skill_id, week_number])
+  @@map("skill_progress_logs")
+  @@index([student_id])
+  @@index([skill_id])
+}
+
+// ============================================
+// 10. LESSON PROGRESS (Video Watching)
+// ============================================
+
+model SkillLessonProgress {
+  id                      String    @id @default(uuid())
+  student_id              String    @map("student_id")
+  lesson_id               String    @map("lesson_id")
+  skill_id                String    @map("skill_id")
+  
+  // Video Progress
+  video_watched_percentage Int      @default(0)
+  last_watch_position     Int       @default(0) // In seconds
+  is_video_completed      Boolean   @default(false)
+  
+  // Lesson Status
+  is_completed            Boolean   @default(false)
+  completed_at            DateTime?
+  
+  // First watch vs Rewatch
+  first_watched_at        DateTime?
+  last_watched_at         DateTime?
+  total_watch_count       Int       @default(0)
+  
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+  
+  // Relations
+  student                 User      @relation(fields: [student_id], references: [id])
+  lesson                  SkillLesson @relation(fields: [lesson_id], references: [id])
+  skill                   Skill     @relation(fields: [skill_id], references: [id])
+  
+  @@unique([student_id, lesson_id])
+  @@map("skill_lesson_progress")
+  @@index([student_id])
+  @@index([lesson_id])
+}
+
+// ============================================
+// 11. CERTIFICATES TABLE
+// ============================================
+
+model SkillCertificate {
+  id                      String    @id @default(uuid())
+  certificate_number      String    @unique @map("certificate_number")
+  student_id              String    @map("student_id")
+  skill_id                String    @map("skill_id")
+  
+  // Certificate Details
+  issue_date              DateTime  @map("issue_date")
+  expiry_date             DateTime?
+  grade                   String?
+  total_marks_obtained    Int?
+  total_marks_possible    Int?
+  percentage              Decimal?  @db.Decimal(5,2)
+  
+  // Files
+  pdf_url                 String
+  qr_code_url             String?
+  qr_code_data            String?
+  
+  // Verification
+  verification_code       String    @unique
+  is_verified             Boolean   @default(true)
+  verified_count          Int       @default(0)
+  
+  // Audit
+  generated_by            String?
+  generated_at            DateTime  @default(now())
+  
+  // Relations
+  student                 User      @relation(fields: [student_id], references: [id])
+  skill                   Skill     @relation(fields: [skill_id], references: [id])
+  generator               User?     @relation("CertificateGenerator", fields: [generated_by], references: [id])
+  
+  @@unique([student_id, skill_id])
+  @@map("skill_certificates")
+  @@index([student_id])
+  @@index([verification_code])
+}
+
+// ============================================
+// 12. GROUPS TABLE
+// ============================================
+
+model Group {
+  id              String      @id @default(uuid())
+  group_code      String      @unique @map("group_code")
+  name            String
+  type            GroupType
+  description     String?
+  created_by      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  is_active       Boolean     @default(true)
+  
+  // Relations
+  creator         User?       @relation("GroupCreator", fields: [created_by], references: [id])
+  members         GroupMember[]
+  skill_assignments SkillGroupAssignment[]
+  student_assignments StudentSkill[]
+  
+  @@map("groups")
+}
+
+// ============================================
+// 13. GROUP MEMBERS
+// ============================================
+
+model GroupMember {
+  id              String    @id @default(uuid())
+  group_id        String    @map("group_id")
+  student_id      String    @map("student_id")
+  joined_at       DateTime  @default(now())
+  left_at         DateTime?
+  is_active       Boolean   @default(true)
+  
+  // Relations
+  group           Group     @relation(fields: [group_id], references: [id])
+  student         User      @relation(fields: [student_id], references: [id])
+  
+  @@unique([group_id, student_id])
+  @@map("group_members")
+}
+
+// ============================================
+// 14. SKILL GROUP ASSIGNMENT (Bulk)
+// ============================================
+
+model SkillGroupAssignment {
+  id              String    @id @default(uuid())
+  skill_id        String    @map("skill_id")
+  group_id        String    @map("group_id")
+  assigned_by     String?
+  assigned_at     DateTime  @default(now())
+  
+  // Relations
+  skill           Skill     @relation(fields: [skill_id], references: [id])
+  group           Group     @relation(fields: [group_id], references: [id])
+  assigner        User?     @relation("GroupAssignmentCreator", fields: [assigned_by], references: [id])
+  
+  @@unique([skill_id, group_id])
+  @@map("skill_group_assignments")
+}
+
+// ============================================
+// 15. SESSIONS TABLE (Device Management)
+// ============================================
+
+model Session {
+  id                  String    @id @default(uuid())
+  user_id             String    @map("user_id")
+  session_token       String    @unique @map("session_token")
+  device_info         String?
+  device_type         String?   // 'desktop', 'mobile', 'tablet'
+  browser             String?
+  os                  String?
+  ip_address          String?
+  location            String?
+  login_time          DateTime  @default(now())
+  last_activity       DateTime  @default(now())
+  logout_time         DateTime?
+  is_active           Boolean   @default(true)
+  forced_logout_by    String?
+  forced_logout_reason String?
+  
+  // Relations
+  user                User      @relation("SessionUser", fields: [user_id], references: [id])
+  forced_by           User?     @relation("SessionForcedBy", fields: [forced_logout_by], references: [id])
+  
+  @@unique([user_id, session_token])
+  @@map("sessions")
+  @@index([user_id])
+  @@index([session_token])
+  @@index([is_active])
+}
+
+// ============================================
+// 16. AUDIT LOGS TABLE
+// ============================================
+
+model AuditLog {
+  id              String    @id @default(uuid())
+  user_id         String    @map("user_id")
+  action          String
+  entity_type     String
+  entity_id       String?
+  old_values      Json?
+  new_values      Json?
+  ip_address      String?
+  user_agent      String?
+  created_at      DateTime  @default(now())
+  
+  // Relations
+  user            User      @relation(fields: [user_id], references: [id])
+  
+  @@map("audit_logs")
+  @@index([user_id])
+  @@index([entity_type, entity_id])
+  @@index([created_at])
+}
+
+// ============================================
+// 17. NOTIFICATIONS TABLE
+// ============================================
+
+model Notification {
+  id              String          @id @default(uuid())
+  user_id         String          @map("user_id")
+  title           String
+  message         String
+  type            NotificationType @default(info)
+  is_read         Boolean         @default(false)
+  read_at         DateTime?
+  action_url      String?
+  created_at      DateTime        @default(now())
+  
+  // Relations
+  user            User            @relation(fields: [user_id], references: [id])
+  
+  @@map("notifications")
+  @@index([user_id])
+  @@index([is_read])
+}

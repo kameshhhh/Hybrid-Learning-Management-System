@@ -1,0 +1,979 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+/* 
+ * ============================================================
+ * HLMS - Hybrid Learning Management System
+ * "VELOX STYLE" - Premium Glassmorphism Design System
+ * ============================================================
+ * 
+ * This file contains:
+ * 1. CSS Custom Properties (Design Tokens)
+ * 2. Base Styles & Typography
+ * 3. Glassmorphism Utilities
+ * 4. Animation Classes
+ * 
+ * Design Philosophy:
+ * - Light, airy feel with aurora gradient backgrounds
+ * - Glassmorphism effects on all containers
+ * - Purple-to-blue gradient accents
+ * - Inter font family throughout
+ * ============================================================
+ */
+
+/* ============================================================
+   1. CSS CUSTOM PROPERTIES (Design Tokens)
+   ============================================================
+   These variables define the entire color system and can be 
+   easily modified to change the app's appearance globally.
+   ============================================================ */
+:root {
+  /* Background Gradients - Creates the soft aurora effect */
+  --bg-gradient: linear-gradient(120deg, #e0f2fe 0%, #fae8ff 50%, #f0fdf4 100%);
+
+  /* Glass Effects - For the premium glassmorphism look */
+  --glass-primary: rgba(255, 255, 255, 0.6);
+  --glass-secondary: rgba(255, 255, 255, 0.4);
+  --glass-tertiary: rgba(255, 255, 255, 0.5);
+  --glass-input: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-border-subtle: rgba(255, 255, 255, 0.6);
+  --glass-blur: 24px;
+  --glass-blur-light: 16px;
+  --glass-blur-card: 12px;
+
+  /* Glass Shadows - Subtle shadows for depth */
+  --glass-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 1);
+  --glass-shadow-hover:
+    0 25px 50px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+
+  /* Text Gradients - For headings and accents */
+  --text-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  --text-gradient-alt: linear-gradient(135deg, #6366f1, #a855f7);
+
+  /* Button Gradient - Primary CTA styling */
+  --btn-gradient: linear-gradient(135deg, #a855f7, #3b82f6);
+  --btn-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+  --btn-shadow-hover: 0 15px 25px rgba(99, 102, 241, 0.3);
+
+  /* Text Colors - Semantic color system */
+  --text-body: #4b5563;
+  --text-dark: #1f2937;
+  --text-muted: #64748b;
+  --text-heading: #1e1b4b;
+
+  /* Accent Colors - Brand colors */
+  --accent-purple: #a855f7;
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
+  --accent-violet: #8b5cf6;
+
+  /* Status Colors - For badges and indicators */
+  --status-success: #10b981;
+  --status-success-bg: rgba(16, 185, 129, 0.1);
+  --status-warning: #f59e0b;
+  --status-warning-bg: rgba(245, 158, 11, 0.1);
+  --status-error: #ef4444;
+  --status-error-bg: rgba(239, 68, 68, 0.1);
+  --status-info: #3b82f6;
+  --status-info-bg: rgba(59, 130, 246, 0.1);
+
+  /* Border Radius - Consistent rounding */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 30px;
+  --radius-2xl: 40px;
+  --radius-full: 9999px;
+
+  /* Spacing - Based on 8px grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Layout */
+  --max-width: 1200px;
+  --sidebar-width: 280px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ============================================================
+   2. BASE STYLES & TYPOGRAPHY
+   ============================================================
+   Global styles that apply to the entire application.
+   Uses Inter font and sets up the aurora gradient background.
+   ============================================================ */
+
+/* Base HTML/Body styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-body);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Root container */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography - Headings with gradient text effect */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-dark);
+}
+
+/* Standardization for Block Editor typography consistency */
+.prose h1 {
+  font-size: 1.875rem !important; /* 3xl */
+  font-weight: 800 !important;   /* extrabold */
+  color: #0f172a !important;     /* slate-900 */
+  letter-spacing: -0.025em !important;
+  margin-bottom: 1rem !important;
+}
+
+.prose h2 {
+  font-size: 1.5rem !important;   /* 2xl */
+  font-weight: 700 !important;   /* bold */
+  color: #1e293b !important;     /* slate-800 */
+  letter-spacing: -0.025em !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Tiptap Table Styles */
+.prose table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.prose table td,
+.prose table th {
+  min-width: 1em;
+  border: 2px solid #e2e8f0;
+  padding: 8px 12px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.prose table th {
+  font-weight: bold;
+  text-align: left;
+  background-color: #f8fafc;
+}
+
+.prose table .selectedCell:after {
+  z-index: 2;
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(200, 200, 255, 0.4);
+  pointer-events: none;
+}
+
+.prose table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #3b82f6;
+  pointer-events: none;
+}
+
+/* Gradient text utility - Apply to headings for the signature look */
+.text-gradient {
+  background: var(--text-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero heading - Large display text */
+.heading-hero {
+  font-size: 4.5rem;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  background: var(--text-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Section heading */
+.heading-section {
+  font-size: 2rem;
+  font-weight: 600;
+  background: var(--text-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subsection heading */
+.heading-subsection {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Body text */
+.text-body {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-body);
+}
+
+/* Muted/secondary text */
+.text-muted {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   3. GLASSMORPHISM UTILITIES
+   ============================================================
+   Reusable glass effect classes for cards, containers, etc.
+   These create the signature "frosted glass" appearance.
+   ============================================================ */
+
+/* Primary glass effect - Used for main containers */
+.glass {
+  background: var(--glass-primary);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Secondary glass - Slightly more transparent */
+.glass-secondary {
+  background: var(--glass-secondary);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--card-shadow);
+}
+
+/* Card glass - For smaller cards with less blur */
+.glass-card {
+  background: var(--glass-tertiary);
+  backdrop-filter: blur(var(--glass-blur-card));
+  -webkit-backdrop-filter: blur(var(--glass-blur-card));
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+/* Card hover effect */
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+/* Sidebar glass effect */
+.glass-sidebar {
+  background: var(--glass-primary);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-right: 1px solid var(--glass-border);
+}
+
+/* Input glass effect */
+.glass-input {
+  background: var(--glass-input);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: 1rem;
+  color: var(--text-dark);
+  transition: all var(--transition-fast);
+  outline: none;
+  width: 100%;
+}
+
+.glass-input:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+.glass-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   4. BUTTON STYLES
+   ============================================================
+   Primary, secondary, and ghost button variants.
+   ============================================================ */
+
+/* Primary button - Gradient background */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: var(--btn-gradient);
+  border: none;
+  border-radius: var(--radius-full);
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary button - Glass effect */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-purple);
+  background: var(--glass-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+}
+
+/* Ghost button - Transparent */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-body);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  color: var(--accent-purple);
+  background: rgba(168, 85, 247, 0.05);
+}
+
+/* Small button variant */
+.btn-sm {
+  padding: 10px 20px;
+  font-size: 0.875rem;
+}
+
+/* Icon button */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: var(--glass-secondary);
+  border: 1px solid var(--glass-border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-icon:hover {
+  color: var(--accent-purple);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================================
+   5. FORM STYLES
+   ============================================================
+   Consistent form element styling.
+   ============================================================ */
+
+/* Form label */
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+/* Form group - Container for label + input */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* Form error message */
+.form-error {
+  font-size: 0.75rem;
+  color: var(--status-error);
+  margin-top: 6px;
+}
+
+/* Form helper text */
+.form-helper {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Select dropdown */
+.glass-select {
+  appearance: none;
+  background: var(--glass-input);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 44px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: 1rem;
+  color: var(--text-dark);
+  transition: all var(--transition-fast);
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.glass-select:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+/* Checkbox and Radio */
+.checkbox-wrapper,
+.radio-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox-wrapper input,
+.radio-wrapper input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-purple);
+  cursor: pointer;
+}
+
+/* ============================================================
+   6. TABLE STYLES
+   ============================================================
+   Glass-styled data tables.
+   ============================================================ */
+
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+}
+
+.glass-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.glass-table th {
+  text-align: left;
+  padding: 14px 16px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.glass-table td {
+  padding: 14px 16px;
+  color: var(--text-dark);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.glass-table tr:hover td {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.glass-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================================
+   7. BADGE STYLES
+   ============================================================
+   Status badges and tags.
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.badge-success {
+  color: var(--status-success);
+  background: var(--status-success-bg);
+}
+
+.badge-warning {
+  color: var(--status-warning);
+  background: var(--status-warning-bg);
+}
+
+.badge-error {
+  color: var(--status-error);
+  background: var(--status-error-bg);
+}
+
+.badge-info {
+  color: var(--status-info);
+  background: var(--status-info-bg);
+}
+
+.badge-default {
+  color: var(--text-muted);
+  background: rgba(100, 116, 139, 0.1);
+}
+
+/* ============================================================
+   8. ANIMATIONS
+   ============================================================
+   Micro-interactions and transitions.
+   ============================================================ */
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease forwards;
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease forwards;
+}
+
+/* Scale in animation */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease forwards;
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Shimmer effect for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   9. UTILITY CLASSES
+   ============================================================
+   Common utilities for layout and styling.
+   ============================================================ */
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.items-center {
+  align-items: center;
+}
+.items-start {
+  align-items: flex-start;
+}
+.items-end {
+  align-items: flex-end;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.gap-1 {
+  gap: var(--space-1);
+}
+.gap-2 {
+  gap: var(--space-2);
+}
+.gap-3 {
+  gap: var(--space-3);
+}
+.gap-4 {
+  gap: var(--space-4);
+}
+.gap-5 {
+  gap: var(--space-5);
+}
+.gap-6 {
+  gap: var(--space-6);
+}
+.gap-8 {
+  gap: var(--space-8);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Spacing */
+.p-4 {
+  padding: var(--space-4);
+}
+.p-5 {
+  padding: var(--space-5);
+}
+.p-6 {
+  padding: var(--space-6);
+}
+.p-8 {
+  padding: var(--space-8);
+}
+.px-4 {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+.py-4 {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+.m-0 {
+  margin: 0;
+}
+.mb-4 {
+  margin-bottom: var(--space-4);
+}
+.mb-6 {
+  margin-bottom: var(--space-6);
+}
+.mt-4 {
+  margin-top: var(--space-4);
+}
+.mt-6 {
+  margin-top: var(--space-6);
+}
+
+/* Text alignment */
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+
+/* Width/Height */
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+.min-h-screen {
+  min-height: 100vh;
+}
+
+/* Overflow */
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-auto {
+  overflow: auto;
+}
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+/* Cursor */
+.cursor-pointer {
+  cursor: pointer;
+}
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   10. RESPONSIVE BREAKPOINTS
+   ============================================================
+   Mobile-first responsive utilities.
+   ============================================================ */
+
+/* Tablet and below (< 900px) */
+@media (max-width: 900px) {
+  .heading-hero {
+    font-size: 3rem;
+  }
+
+  .heading-section {
+    font-size: 1.5rem;
+  }
+
+  .glass {
+    padding: 50px 30px;
+    border-radius: var(--radius-xl);
+  }
+
+  .hide-tablet {
+    display: none !important;
+  }
+
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile (< 600px) */
+@media (max-width: 600px) {
+  .heading-hero {
+    font-size: 2.5rem;
+  }
+
+  .glass {
+    padding: 30px 20px;
+    border-radius: var(--radius-lg);
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .grid-cols-4,
+  .grid-cols-3,
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary {
+    padding: 14px 32px;
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   11. SCROLLBAR STYLING
+   ============================================================
+   Custom scrollbar for glass effect consistency.
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.5);
+}
+
+/* ============================================================
+   12. FOCUS STYLES (Accessibility)
+   ============================================================
+   Visible focus indicators for keyboard navigation.
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}

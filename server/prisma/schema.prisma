@@ -1,0 +1,714 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String                 @id @default(uuid())
+  username              String                 @unique
+  email                 String                 @unique
+  passwordHash          String                 @map("password_hash")
+  fullName              String                 @map("full_name")
+  phone                 String?
+  role                  UserRole
+  rollNumber            String?                @map("roll_number")
+  isActive              Boolean                @default(true) @map("is_active")
+  isBlocked             Boolean                @default(false) @map("is_blocked")
+  blockReason           String?                @map("block_reason")
+  blockedAt             DateTime?              @map("blocked_at")
+  blockedBy             String?
+  isLoggedIn            Boolean                @default(false) @map("is_logged_in")
+  currentSessionId      String?                @map("current_session_id")
+  lastLoginAt           DateTime?              @map("last_login_at")
+  lastLoginIp           String?                @map("last_login_ip")
+  lastLoginDevice       String?                @map("last_login_device")
+  passwordChangedAt     DateTime               @default(now()) @map("password_changed_at")
+  passwordResetToken    String?                @map("password_reset_token")
+  passwordResetExpires  DateTime?              @map("password_reset_expires")
+  failedLoginAttempts   Int                    @default(0) @map("failed_login_attempts")
+  lockedUntil           DateTime?              @map("locked_until")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+  createdBy             String?                @map("created_by")
+  collegeName           String?                @map("college_name")
+  department            String?
+  dob                   DateTime?              @map("dob")
+  yearOfStudy           String?                @map("year_of_study")
+  auditLogs             AuditLog[]             @relation("AuditLogUser")
+  assessments           DailyAssessment[]      @relation("Assessor")
+  studentAssessments    DailyAssessment[]      @relation("AssessmentStudent")
+  groupMembers          GroupMember[]          @relation("GroupMemberStudent")
+  createdGroups         Group[]                @relation("GroupCreator")
+  notifications         Notification[]         @relation("NotificationUser")
+  forcedSessions        Session[]              @relation("SessionForcedBy")
+  userSessions          Session[]              @relation("SessionUser")
+  generatedCertificates SkillCertificate[]     @relation("CertificateGenerator")
+  studentCertificates   SkillCertificate[]     @relation("CertificateStudent")
+  createdChapters       SkillChapter[]         @relation("ChapterCreator")
+  assignedFaculties     SkillFaculty[]         @relation("FacultyAssigner")
+  faculty               SkillFaculty[]         @relation("FacultyAssignment")
+  removedFaculties      SkillFaculty[]         @relation("FacultyRemover")
+  groupAssignments      SkillGroupAssignment[] @relation("GroupAssignmentCreator")
+  studentLessonProgress SkillLessonProgress[]  @relation("LessonProgressStudent")
+  createdLessons        SkillLesson[]          @relation("LessonCreator")
+  validatedLessons      SkillLesson[]          @relation("LessonValidator")
+  reviewedLogs          SkillProgressLog[]     @relation("LogReviewer")
+  studentProgressLogs   SkillProgressLog[]     @relation("ProgressLogStudent")
+  createdTasks          SkillTask[]            @relation("TaskCreator")
+  approvedSkills        Skill[]                @relation("SkillApprover")
+  createdSkills         Skill[]                @relation("SkillCreator")
+  assignedEnrollments   StudentSkill[]         @relation("StudentEnrollmentAssigner")
+  studentSkills         StudentSkill[]         @relation("StudentEnrollment")
+  
+  // New Relational Fields
+  mcqAttempts           MCQAttempt[]
+  practicalEvals        PracticalEvaluation[]  @relation("PracticalStudent")
+  practicalEvaluated    PracticalEvaluation[]  @relation("PracticalEvaluator")
+  checklistEvals        ChecklistEvaluation[]  @relation("ChecklistStudent")
+  checklistEvaluated    ChecklistEvaluation[]  @relation("ChecklistEvaluator")
+  taskSubmissions       TaskSubmission[]       @relation("TaskStudent")
+  taskEvaluated         TaskSubmission[]       @relation("TaskEvaluator")
+  studentProgress       StudentProgress[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([isLoggedIn])
+  @@index([username])
+  @@map("users")
+}
+
+model Skill {
+  id               String                 @id @default(uuid())
+  skillCode        String                 @unique @map("skill_code")
+  name             String
+  description      String?
+  durationWeeks    Int                    @map("duration_weeks")
+  totalTasks       Int                    @default(0) @map("total_tasks")
+  totalChapters    Int                    @default(0) @map("total_chapters")
+  totalLessons     Int                    @default(0) @map("total_lessons")
+  status           SkillStatus            @default(draft)
+  rejectionReason  String?                @map("rejection_reason")
+  approvedAt       DateTime?              @map("approved_at")
+  approvedBy       String?                @map("approved_by")
+  
+  // New Course-Level Fields
+  preparedBy       Json?                  @map("prepared_by") // Array of preparers
+  externalLinks    Json?                  @map("external_links") // Array of {label, url}
+  standardsFollowed Json?                 @map("standards_followed") // Array of strings
+  skillCoverage    Json?                  @map("skill_coverage") // Structured coverage info
+  totalDays        Int?                   @map("total_days")
+  totalHours       Int?                   @map("total_hours")
+  overallOutcome   String?                @map("overall_outcome")
+  relevance        String?                @map("relevance")
+  dayWiseSummary   Json?                  @map("day_wise_summary")
+  
+  thumbnailUrl     String?                @map("thumbnail_url")
+  coverImageUrl    String?                @map("cover_image_url")
+  useBlockSystem   Boolean                @default(true) @map("use_block_system")
+  createdBy        String?                @map("created_by")
+  createdAt        DateTime               @default(now()) @map("created_at")
+  updatedAt        DateTime               @updatedAt @map("updated_at")
+  dailyAssessments DailyAssessment[]
+  certificates     SkillCertificate[]
+  chapters         SkillChapter[]
+  faculty          SkillFaculty[]
+  groupAssignments SkillGroupAssignment[]
+  lessonProgress   SkillLessonProgress[]
+  progressLogs     SkillProgressLog[]
+  tasks            SkillTask[]
+  
+  // New Relational Fields
+  studentProgress  StudentProgress[]
+  analytics        SkillAnalytics?
+  mcqAttempts      MCQAttempt[]
+  practicalEvals   PracticalEvaluation[]
+  checklistEvals   ChecklistEvaluation[]
+
+  approver         User?                  @relation("SkillApprover", fields: [approvedBy], references: [id])
+  creator          User?                  @relation("SkillCreator", fields: [createdBy], references: [id])
+  studentSkills    StudentSkill[]
+
+  @@index([status])
+  @@index([skillCode])
+  @@index([createdBy])
+  @@map("skills")
+}
+
+model SkillFaculty {
+  id            String    @id @default(uuid())
+  skillId       String    @map("skill_id")
+  facultyId     String    @map("faculty_id")
+  assignedBy    String?   @map("assigned_by")
+  assignedAt    DateTime  @default(now()) @map("assigned_at")
+  isPrimary     Boolean   @default(false) @map("is_primary")
+  isActive      Boolean   @default(true) @map("is_active")
+  removedAt     DateTime? @map("removed_at")
+  removedBy     String?   @map("removed_by")
+  removalReason String?   @map("removal_reason")
+  assigner      User?     @relation("FacultyAssigner", fields: [assignedBy], references: [id])
+  faculty       User      @relation("FacultyAssignment", fields: [facultyId], references: [id])
+  remover       User?     @relation("FacultyRemover", fields: [removedBy], references: [id])
+  skill         Skill     @relation(fields: [skillId], references: [id])
+
+  @@unique([skillId, facultyId])
+  @@index([skillId])
+  @@index([facultyId])
+  @@map("skill_faculty")
+}
+
+model SkillChapter {
+  id          String        @id @default(uuid())
+  skillId     String        @map("skill_id")
+  title       String
+  description String?
+  orderIndex  Int           @map("order_index")
+  dayNumber   Int?          @map("day_number")
+  
+  // New Structured Day Content
+  content             Json?  @map("content") // Objective, Outcome, Schedule, Theory, Materials, etc.
+  technicalKnowledge  Json?  @map("technical_knowledge")
+  testingMeasurements Json?  @map("testing_measurements")
+  maintenanceRepair   Json?  @map("maintenance_repair")
+  checklistConfig     Json?  @map("checklist_config")
+  mcqData             Json?  @map("mcq_data")
+
+  status      ChapterStatus @default(draft)
+  blocks      Json?         @map("blocks") // Array of block objects
+  schemaVersion Int         @default(1) @map("schema_version")
+  createdBy   String?       @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  
+  creator     User?         @relation("ChapterCreator", fields: [createdBy], references: [id])
+  skill       Skill         @relation(fields: [skillId], references: [id])
+  lessons     SkillLesson[]
+  tasks       SkillTask[]
+  
+  // New Relational Fields
+  mcqAttempts      MCQAttempt[]
+  practicalEvals   PracticalEvaluation[]
+  checklistEvals   ChecklistEvaluation[]
+  taskSubmissions  TaskSubmission[]
+
+  @@unique([skillId, orderIndex])
+  @@index([skillId])
+  @@map("skill_chapters")
+}
+
+model SkillLesson {
+  id                     String                @id @default(uuid())
+  chapterId              String                @map("chapter_id")
+  title                  String
+  description            String?
+  orderIndex             Int                   @map("order_index")
+  contentType            String                @default("video") @map("content_type")
+  textContent            String?               @map("text_content")
+  videoDurationSeconds   Int?                  @map("video_duration_seconds")
+  videoUrl               String?               @map("video_url")
+  videoDuration          Int?
+  videoSize              BigInt?               @map("video_size")
+  videoFormat            String?               @map("video_format")
+  videoResolution        String?               @map("video_resolution")
+  videoThumbnail         String?               @map("video_thumbnail")
+  pdfUrl                 String?               @map("pdf_url")
+  pdfSize                BigInt?               @map("pdf_size")
+  attachmentUrls         Json?
+  isVideoValidated       Boolean               @default(false) @map("is_video_validated")
+  videoValidationMessage String?               @map("video_validation_message")
+  videoValidatedAt       DateTime?             @map("video_validated_at")
+  videoValidatedBy       String?               @map("video_validated_by")
+  status                 LessonStatus          @default(draft)
+  createdBy              String?               @map("created_by")
+  createdAt              DateTime              @default(now()) @map("created_at")
+  updatedAt              DateTime              @updatedAt @map("updated_at")
+  progressRecords        SkillLessonProgress[]
+  chapter                SkillChapter          @relation(fields: [chapterId], references: [id])
+  creator                User?                 @relation("LessonCreator", fields: [createdBy], references: [id])
+  validator              User?                 @relation("LessonValidator", fields: [videoValidatedBy], references: [id])
+  contents               LessonContent[]
+  tasks                  SkillTask[]
+
+  @@unique([chapterId, orderIndex])
+  @@index([chapterId])
+  @@index([status])
+  @@map("skill_lessons")
+}
+
+model SkillTask {
+  id               String            @id @default(uuid())
+  skillId          String            @map("skill_id")
+  dayNumber        Int               @map("day_number")
+  rubric           Json?
+  dueDate          DateTime?         @map("due_date")
+  title            String
+  description      String?
+  maxMarks         Int               @default(10) @map("max_marks")
+  passingMarks     Int               @default(5) @map("passing_marks")
+  submissionType   SubmissionType    @default(file)
+  allowedFileTypes Json              @default("[\"pdf\", \"doc\", \"docx\", \"zip\"]")
+  maxFileSize      Int               @default(10485760)
+  deadlineDays     Int               @default(1) @map("deadline_days")
+  status           TaskStatus        @default(draft)
+  createdBy        String?           @map("created_by")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  chapterId        String?           @map("chapter_id")
+  assessments      DailyAssessment[]
+  chapter          SkillChapter?     @relation(fields: [chapterId], references: [id])
+  creator          User?             @relation("TaskCreator", fields: [createdBy], references: [id])
+  skill            Skill             @relation(fields: [skillId], references: [id])
+  lessonId         String?           @map("lesson_id")
+  lesson           SkillLesson?      @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  
+  // New Relational Fields
+  taskSubmissions  TaskSubmission[]
+
+  @@index([skillId])
+  @@index([dayNumber])
+  @@map("skill_tasks")
+}
+
+model StudentSkill {
+  id                  String             @id @default(uuid())
+  studentId           String             @map("student_id")
+  skillId             String             @map("skill_id")
+  assignedBy          String?            @map("assigned_by")
+  assignedAt          DateTime           @default(now()) @map("assigned_at")
+  groupId             String?            @map("group_id")
+  status              StudentSkillStatus @default(active)
+  droppedAt           DateTime?          @map("dropped_at")
+  dropReason          String?            @map("drop_reason")
+  totalTasksCompleted Int                @default(0) @map("total_tasks_completed")
+  totalMarksObtained  Int                @default(0) @map("total_marks_obtained")
+  progressPercentage  Decimal            @default(0) @map("progress_percentage") @db.Decimal(5, 2)
+  completedAt         DateTime?          @map("completed_at")
+  certificateUrl      String?            @map("certificate_url")
+  assigner            User?              @relation("StudentEnrollmentAssigner", fields: [assignedBy], references: [id])
+  group               Group?             @relation(fields: [groupId], references: [id])
+  skill               Skill              @relation(fields: [skillId], references: [id])
+  student             User               @relation("StudentEnrollment", fields: [studentId], references: [id])
+
+  @@unique([studentId, skillId])
+  @@index([studentId])
+  @@index([skillId])
+  @@index([status])
+  @@map("student_skills")
+}
+
+model DailyAssessment {
+  id                   String    @id @default(uuid())
+  studentId            String    @map("student_id")
+  taskId               String    @map("task_id")
+  skillId              String    @map("skill_id")
+  submissionText       String?   @map("submission_text")
+  submissionFileUrl    String?   @map("submission_file_url")
+  submittedAt          DateTime  @default(now()) @map("submitted_at")
+  marksObtained        Decimal?  @map("marks_obtained") @db.Decimal(5, 2)
+  rubricScores         Json?
+  facultyFeedback      String?   @map("faculty_feedback")
+  assessedBy           String?   @map("assessed_by")
+  assessedAt           DateTime? @map("assessed_at")
+  isLate               Boolean   @default(false) @map("is_late")
+  isResubmitted        Boolean   @default(false) @map("is_resubmitted")
+  previousSubmissionId String?   @map("previous_submission_id")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  assessor             User?     @relation("Assessor", fields: [assessedBy], references: [id])
+  skill                Skill     @relation(fields: [skillId], references: [id])
+  student              User      @relation("AssessmentStudent", fields: [studentId], references: [id])
+  task                 SkillTask @relation(fields: [taskId], references: [id])
+
+  @@unique([studentId, taskId])
+  @@index([studentId])
+  @@index([taskId])
+  @@index([assessedBy])
+  @@map("daily_assessments")
+}
+
+model SkillProgressLog {
+  id              String    @id @default(uuid())
+  studentId       String    @map("student_id")
+  skillId         String    @map("skill_id")
+  weekNumber      Int       @map("week_number")
+  logDate         DateTime  @map("log_date")
+  workDone        String?   @map("work_done")
+  challengesFaced String?   @map("challenges_faced")
+  nextPlan        String?   @map("next_plan")
+  facultyRemarks  String?   @map("faculty_remarks")
+  reviewedBy      String?   @map("reviewed_by")
+  reviewedAt      DateTime? @map("reviewed_at")
+  isApproved      Boolean   @default(false) @map("is_approved")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  reviewer        User?     @relation("LogReviewer", fields: [reviewedBy], references: [id])
+  skill           Skill     @relation(fields: [skillId], references: [id])
+  student         User      @relation("ProgressLogStudent", fields: [studentId], references: [id])
+
+  @@unique([studentId, skillId, weekNumber])
+  @@index([studentId])
+  @@index([skillId])
+  @@map("skill_progress_logs")
+}
+
+model SkillLessonProgress {
+  id                     String      @id @default(uuid())
+  studentId              String      @map("student_id")
+  lessonId               String      @map("lesson_id")
+  skillId                String      @map("skill_id")
+  videoWatchedPercentage Int         @default(0) @map("video_watched_percentage")
+  lastWatchPosition      Int         @default(0) @map("last_watch_position")
+  maxWatchedTime         Int         @default(0) @map("max_watched_time")
+  watchedSeconds         Int         @default(0) @map("watched_seconds")
+  isVideoCompleted       Boolean     @default(false) @map("is_video_completed")
+  isCompleted            Boolean     @default(false) @map("is_completed")
+  completedAt            DateTime?   @map("completed_at")
+  firstWatchedAt         DateTime?   @map("first_watched_at")
+  lastWatchedAt          DateTime?   @map("last_watched_at")
+  totalWatchCount        Int         @default(0) @map("total_watch_count")
+  createdAt              DateTime    @default(now()) @map("created_at")
+  updatedAt              DateTime    @updatedAt @map("updated_at")
+  lesson                 SkillLesson @relation(fields: [lessonId], references: [id])
+  skill                  Skill       @relation(fields: [skillId], references: [id])
+  student                User        @relation("LessonProgressStudent", fields: [studentId], references: [id])
+
+  @@unique([studentId, lessonId])
+  @@index([studentId])
+  @@index([lessonId])
+  @@map("skill_lesson_progress")
+}
+
+model SkillCertificate {
+  id                 String    @id @default(uuid())
+  certificateNumber  String    @unique @map("certificate_number")
+  studentId          String    @map("student_id")
+  skillId            String    @map("skill_id")
+  issueDate          DateTime  @map("issue_date")
+  expiryDate         DateTime? @map("expiry_date")
+  grade              String?
+  totalMarksObtained Int?      @map("total_marks_obtained")
+  totalMarksPossible Int?      @map("total_marks_possible")
+  percentage         Decimal?  @db.Decimal(5, 2)
+  pdfUrl             String    @map("pdf_url")
+  qrCodeUrl          String?   @map("qr_code_url")
+  qrCodeData         String?   @map("qr_code_data")
+  verificationCode   String    @unique @map("verification_code")
+  isVerified         Boolean   @default(true) @map("is_verified")
+  verifiedCount      Int       @default(0) @map("verified_count")
+  generatedBy        String?   @map("generated_by")
+  generatedAt        DateTime  @default(now()) @map("generated_at")
+  generator          User?     @relation("CertificateGenerator", fields: [generatedBy], references: [id])
+  skill              Skill     @relation(fields: [skillId], references: [id])
+  student            User      @relation("CertificateStudent", fields: [studentId], references: [id])
+
+  @@unique([studentId, skillId])
+  @@index([studentId])
+  @@index([verificationCode])
+  @@map("skill_certificates")
+}
+
+model Group {
+  id               String                 @id @default(uuid())
+  groupCode        String                 @unique @map("group_code")
+  name             String
+  type             GroupType
+  description      String?
+  createdBy        String?                @map("created_by")
+  createdAt        DateTime               @default(now()) @map("created_at")
+  updatedAt        DateTime               @updatedAt @map("updated_at")
+  isActive         Boolean                @default(true) @map("is_active")
+  members          GroupMember[]
+  creator          User?                  @relation("GroupCreator", fields: [createdBy], references: [id])
+  skillAssignments SkillGroupAssignment[]
+  studentSkills    StudentSkill[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id        String    @id @default(uuid())
+  groupId   String    @map("group_id")
+  studentId String    @map("student_id")
+  joinedAt  DateTime  @default(now()) @map("joined_at")
+  leftAt    DateTime? @map("left_at")
+  isActive  Boolean   @default(true) @map("is_active")
+  group     Group     @relation(fields: [groupId], references: [id])
+  student   User      @relation("GroupMemberStudent", fields: [studentId], references: [id])
+
+  @@unique([groupId, studentId])
+  @@map("group_members")
+}
+
+model SkillGroupAssignment {
+  id         String   @id @default(uuid())
+  skillId    String   @map("skill_id")
+  groupId    String   @map("group_id")
+  assignedBy String?  @map("assigned_by")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  assigner   User?    @relation("GroupAssignmentCreator", fields: [assignedBy], references: [id])
+  group      Group    @relation(fields: [groupId], references: [id])
+  skill      Skill    @relation(fields: [skillId], references: [id])
+
+  @@unique([skillId, groupId])
+  @@map("skill_group_assignments")
+}
+
+model Session {
+  id                 String    @id @default(uuid())
+  userId             String    @map("user_id")
+  sessionToken       String    @unique @map("session_token")
+  deviceInfo         String?   @map("device_info")
+  deviceType         String?
+  browser            String?
+  os                 String?
+  ipAddress          String?   @map("ip_address")
+  location           String?
+  loginTime          DateTime  @default(now()) @map("login_time")
+  lastActivity       DateTime  @default(now()) @map("last_activity")
+  logoutTime         DateTime? @map("logout_time")
+  isActive           Boolean   @default(true) @map("is_active")
+  forcedLogoutBy     String?   @map("forced_logout_by")
+  forcedLogoutReason String?   @map("forced_logout_reason")
+  forcedBy           User?     @relation("SessionForcedBy", fields: [forcedLogoutBy], references: [id])
+  user               User      @relation("SessionUser", fields: [userId], references: [id])
+
+  @@unique([userId, sessionToken])
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([isActive])
+  @@map("sessions")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation("AuditLogUser", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  title     String
+  message   String
+  type      NotificationType @default(info)
+  isRead    Boolean          @default(false) @map("is_read")
+  readAt    DateTime?        @map("read_at")
+  actionUrl String?          @map("action_url")
+  createdAt DateTime         @default(now()) @map("created_at")
+  user      User             @relation("NotificationUser", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+enum UserRole {
+  admin
+  faculty
+  student
+}
+
+enum SkillStatus {
+  draft
+  pending_approval
+  approved
+  rejected
+  active
+  archived
+}
+
+enum ChapterStatus {
+  draft
+  pending_approval
+  approved
+}
+
+enum LessonStatus {
+  draft
+  pending_approval
+  approved
+}
+
+enum TaskStatus {
+  draft
+  pending_approval
+  approved
+}
+
+enum StudentSkillStatus {
+  active
+  dropped
+  completed
+}
+
+enum SubmissionType {
+  file
+  text
+  both
+}
+
+enum GroupType {
+  team
+  college
+  batch
+  class
+}
+
+enum LessonContentType {
+  OBJECTIVE
+  OUTCOME
+  MATERIAL
+  THEORY
+  SAFETY
+}
+
+model LessonContent {
+  id          String            @id @default(uuid())
+  lessonId    String            @map("lesson_id")
+  type        LessonContentType
+  content     String
+  orderIndex  Int               @map("order_index")
+  isDeleted   Boolean           @default(false) @map("is_deleted")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  lesson      SkillLesson       @relation(fields: [lessonId], references: [id])
+
+  @@unique([lessonId, type, orderIndex])
+  @@index([lessonId, type, isDeleted])
+  @@map("lesson_contents")
+}
+
+enum NotificationType {
+  info
+  success
+  warning
+  error
+}
+model MCQAttempt {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  skillId     String   @map("skill_id")
+  dayId       String   @map("day_id")
+  answers     Json     @map("answers") // Index-based selection
+  score       Int
+  maxScore    Int      @map("max_score")
+  attemptId   String   @map("attempt_id")
+  blockId     String?  @map("block_id") // Link to block-based MCQ
+  attemptedAt DateTime @default(now()) @map("attempted_at")
+
+  student User         @relation(fields: [studentId], references: [id])
+  skill   Skill        @relation(fields: [skillId], references: [id])
+  day     SkillChapter @relation(fields: [dayId], references: [id])
+
+  @@index([studentId, skillId])
+  @@map("mcq_attempts")
+}
+
+model PracticalEvaluation {
+  id            String   @id @default(uuid())
+  studentId     String   @map("student_id")
+  skillId       String   @map("skill_id")
+  dayId         String   @map("day_id")
+  evaluatorId   String   @map("evaluator_id")
+  criteriaMarks Json     @map("criteria_marks") // Array of {index, marks}
+  totalMarks    Int      @map("total_marks")
+  remarks       String?
+  evaluatedAt   DateTime @default(now()) @map("evaluated_at")
+
+  student   User         @relation("PracticalStudent", fields: [studentId], references: [id])
+  skill     Skill        @relation(fields: [skillId], references: [id])
+  day       SkillChapter @relation(fields: [dayId], references: [id])
+  evaluator User         @relation("PracticalEvaluator", fields: [evaluatorId], references: [id])
+
+  @@index([studentId, skillId])
+  @@map("practical_evaluations")
+}
+
+model ChecklistEvaluation {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  skillId     String   @map("skill_id")
+  dayId       String   @map("day_id")
+  evaluatorId String   @map("evaluator_id")
+  results     Json     @map("results") // Array of {index, value}
+  type        String   @map("type") // pass_fail / marks
+  evaluatedAt DateTime @default(now()) @map("evaluated_at")
+
+  student   User         @relation("ChecklistStudent", fields: [studentId], references: [id])
+  skill     Skill        @relation(fields: [skillId], references: [id])
+  day       SkillChapter @relation(fields: [dayId], references: [id])
+  evaluator User         @relation("ChecklistEvaluator", fields: [evaluatorId], references: [id])
+
+  @@index([studentId, skillId])
+  @@map("checklist_evaluations")
+}
+
+model TaskSubmission {
+  id             String   @id @default(uuid())
+  studentId      String   @map("student_id")
+  taskId         String   @map("task_id")
+  dayId          String   @map("day_id") // SkillChapter ID
+  submissionText String?  @map("submission_text")
+  fileUrl        String?  @map("file_url")
+  status         String   @default("pending") // pending, evaluated
+  feedback       String?
+  blockId        String?  @map("block_id") // Link to block-based Task
+  evaluatedBy    String?  @map("evaluated_by")
+  evaluatedAt    DateTime? @map("evaluated_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  student   User         @relation("TaskStudent", fields: [studentId], references: [id])
+  task      SkillTask    @relation(fields: [taskId], references: [id])
+  day       SkillChapter @relation(fields: [dayId], references: [id])
+  evaluator User?        @relation("TaskEvaluator", fields: [evaluatedBy], references: [id])
+
+  @@index([studentId, taskId])
+  @@map("task_submissions")
+}
+
+model StudentProgress {
+  id                 String   @id @default(uuid())
+  studentId          String   @map("student_id")
+  skillId            String   @map("skill_id")
+  completedDays      Json     @default("[]") @map("completed_days") // Array of day IDs
+  completedTasks     Json     @default("[]") @map("completed_tasks") // Array of task IDs
+  completedBlocks    Json     @default("{}") @map("completed_blocks") // Map of chapterId -> [blockIds]
+  blockProgress      Json     @default("{}") @map("block_progress") // Map of blockId -> { watchedSeconds, maxWatchedTime, isCompleted }
+  progressPercentage Decimal  @default(0) @map("progress_percentage") @db.Decimal(5, 2)
+  lastAccessedAt     DateTime @default(now()) @map("last_accessed_at")
+
+  student User  @relation(fields: [studentId], references: [id])
+  skill   Skill @relation(fields: [skillId], references: [id])
+
+  @@unique([studentId, skillId])
+  @@map("student_progress")
+}
+
+model SkillAnalytics {
+  id             String   @id @default(uuid())
+  skillId        String   @unique @map("skill_id")
+  completionRate Decimal  @default(0) @map("completion_rate") @db.Decimal(5, 2)
+  avgScore       Decimal  @default(0) @map("avg_score") @db.Decimal(5, 2)
+  totalStudents  Int      @default(0) @map("total_students")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  skill Skill @relation(fields: [skillId], references: [id])
+
+  @@map("skill_analytics")
+}

@@ -1,0 +1,49 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+client/dist/
+client/dist-ssr/
+server/dist/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+client/.env
+client/.env.*
+!client/.env.example
+
+# Runtime and logs
+*.log
+logs/
+*.pid
+client/*.pid
+server/*.pid
+
+# Local debug/temp artifacts
+temp_*.js
+client/errors*.txt
+server/out*.txt
+server/err*.txt
+server/errors*.txt
+server/ts*_errors*.txt
+server/tsc_errors*.txt
+
+# Local backups
+server/backups/*.sql
+server/backups/backup_log.txt
+
+# Upload/runtime generated files
+server/uploads/
